@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang=en xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset=utf-8>
+    <meta content="IE=edge" http-equiv=X-UA-Compatible>
+
+    <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+</head>
+<style>
+    body {
+        padding-top: 50px;
+    }
+</style>
+<body>
+
+<div class="container-fluid">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Project name</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+</div>
+<div class="container">
+<div class="row">
+    <div class="col-md-6">
+
+        <h3 class="page-header">Add Person
+            <small>All fields are required</small>
+        </h3>
+
+        <form name="person" id="person" method="post" class="form-horizontal">
+
+
+            <div class="form-group">
+                <label class="control-label">Id</label>
+                <input type="text" class="form-control" name="id">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Name</label>
+                <input type="text" class="form-control" name="name" id="name">
+                <span class="text-danger"></span>
+            </div>
+
+            <button type="button" id="savePerson" class="btn btn-success">Add Person</button>
+
+        </form>
+    </div>
+
+</div>
+    </div>
+
+<div id="personContainer" class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="page-header">All Persons</h3>
+        </div>
+    </div>
+    <table class="table table-condensed table-bordered">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+
+        </tr>
+        <tbody id="data">
+
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+
+    // On load attach a click handler on the save Person button
+    // Invoke the AJAX save call when clicked.
+    $(function () {
+
+        $("#savePerson").click(function (event) {
+            event.preventDefault();
+            doWithAjax();
+        });
+    });
+
+    function doWithAjax() {
+        var personData = $("#person").serialize();
+
+        var personJson = {};
+        personJson.name = $("#name").val();
+
+        var URL = './person/save';
+        $.ajax({
+            type: "POST",
+            url: URL,
+            data: JSON.stringify(personJson),
+            contentType:'application/json',
+            dataType: 'json',
+            success: function (data) {
+                var dom = '';
+                $.each(data, function (key, value) {
+                    console.log(key + ": " + value.name);
+                    dom+='<tr><td>' + key +'</td><td>' + value.name +'</td>';
+                });
+                $("#data").empty();
+                $("#data").append(dom);
+
+            },
+            error: function (data) {
+
+                $.each(data, function (key, value) {
+                    if(key==="responseJSON") {
+                        var message = value.name;
+                        console.log(message);
+                        var keyValueArray = message.split(':');
+                        var idKey = keyValueArray[0];
+                        var messageValue = keyValueArray[1];
+
+                        $("#" + idKey).parent().addClass("has-error");
+                        $("#" + idKey).next().text(messageValue);
+                    }
+
+                });
+
+            }
+        });
+    }
+
+
+</script>
+
+
+</body>
+</html>
+
+
